@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arslan's Ultimate Downloader</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <!-- AOS Animation -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- Stars Background -->
+<canvas id="stars"></canvas>
+
+<!-- Downloader Section -->
+<section id="downloader" class="downloader-section">
+  <div class="container" data-aos="fade-up">
+
+    <h1>🎬 Arslan’s Ultimate Downloader</h1>
+    <p>Download YouTube , Instagram LinkedIn & Facebook videos in seconds!</p>
+
+    <div class="form-card">
+      <input type="text" id="url" placeholder="Paste video URL here..." required>
+
+      <div class="row">
+        <div class="col-lg-6 col-12">
+          <select id="quality">
+            <option value="best">Best Quality</option>
+            <option value="bestvideo[height<=720]+bestaudio">720p</option>
+            <option value="bestvideo[height<=1080]+bestaudio">1080p</option>
+          </select>
+        </div>
+        <div class="col-lg-6 col-12">
+          <select id="format">
+            <option value="mp4">Video (MP4)</option>
+            <option value="mp3">Audio (MP3)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button onclick="fetchInfo()">🎯 Fetch Info</button>
+        <button onclick="directDownload()">⬇ Download Now</button>
+      </div>
+
+      <div id="loader" class="loader hidden"></div>
+
+      <div id="videoInfo" class="card hidden" data-aos="fade-up">
+        <img id="thumbnail" src="" alt="Thumbnail">
+        <h2 id="videoTitle"></h2>
+      </div>
+
+      <div id="result" class="result"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Footer -->
+<footer id="footer" class="footer-section">
+  <div class="container text-center">
+    <p>© 2025 Arslan's Downloader. All Rights Reserved.</p>
+  </div>
+</footer>
+
+<!-- JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init();
+</script>
+
+<!-- Functions -->
+<script>
+  async function fetchInfo() {
+    const url = document.getElementById("url").value;
+    if (!url) return alert("Please paste a URL!");
+
+    document.getElementById("loader").classList.remove('hidden');
+    document.getElementById("videoInfo").classList.add('hidden');
+
+    const res = await fetch("/fetch_info", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: url })
+    });
+
+    const data = await res.json();
+    document.getElementById("loader").classList.add('hidden');
+
+    if (data.error) {
+      alert(data.error);
+    } else {
+      document.getElementById("thumbnail").src = data.thumbnail;
+      document.getElementById("videoTitle").innerText = data.title;
+      document.getElementById("videoInfo").classList.remove('hidden');
+    }
+  }
+
+  async function directDownload() {
+    const url = document.getElementById("url").value;
+    const quality = document.getElementById("quality").value;
+    const format = document.getElementById("format").value;
+
+    if (!url) return alert("Paste URL first!");
+
+    document.getElementById("loader").classList.remove('hidden');
+    document.getElementById("result").innerHTML = '';
+
+    const res = await fetch("/download", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: url,
+        quality: quality,
+        download_mp3: format === 'mp3'
+      })
+    });
+
+    const data = await res.json();
+    document.getElementById("loader").classList.add('hidden');
+
+    if (data.filepath) {
+      document.getElementById("result").innerHTML = `
+        ✅ Download ready: <br>
+        <a href="${data.filepath}" download>⬇ Save Now</a>
+      `;
+    } else {
+      document.getElementById("result").innerHTML = `<span style="color:red;">${data.error}</span>`;
+    }
+  }
+</script>
+
+<!-- Stars Background Script -->
+<script>
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  canvas.width = width;
+  canvas.height = height;
+
+  const stars = [];
+
+  for (let i = 0; i < 150; i++) {
+    stars.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: Math.random() * 1.5,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5
+    });
+  }
+
+  function drawStars() {
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "white";
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  function updateStars() {
+    stars.forEach(star => {
+      star.x += star.dx;
+      star.y += star.dy;
+      if (star.x < 0 || star.x > width) star.dx = -star.dx;
+      if (star.y < 0 || star.y > height) star.dy = -star.dy;
+    });
+  }
+
+  function animate() {
+    drawStars();
+    updateStars();
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+  });
+</script>
+
+</body>
+</html>
