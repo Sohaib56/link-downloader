@@ -1,199 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Arslan's Ultimate Downloader</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-  <!-- AOS Animation -->
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <title>Fetch-Flix | The Smartest Video Downloader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body>
+<body class="bg-gray-50 min-h-screen flex flex-col">
 
-<!-- Stars Background -->
-<canvas id="stars"></canvas>
-
-<!-- Downloader Section -->
-<section id="downloader" class="downloader-section">
-  <div class="container" data-aos="fade-up">
-
-    <h1>🎬 Arslan’s Ultimate Downloader</h1>
-    <p>Download YouTube , Instagram LinkedIn & Facebook videos in seconds!</p>
-
-    <div class="form-card">
-      <input type="text" id="url" placeholder="Paste video URL here..." required>
-
-      <div class="row">
-        <div class="col-lg-6 col-12">
-          <select id="quality">
-            <option value="best">Best Quality</option>
-            <option value="bestvideo[height<=720]+bestaudio">720p</option>
-            <option value="bestvideo[height<=1080]+bestaudio">1080p</option>
-          </select>
-        </div>
-        <div class="col-lg-6 col-12">
-          <select id="format">
-            <option value="mp4">Video (MP4)</option>
-            <option value="mp3">Audio (MP3)</option>
-          </select>
-        </div>
+  <!-- Header / Navbar -->
+  <header class="bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <!-- Logo / Title -->
+      <div class="flex items-center gap-2">
+        <i class="fas fa-download text-2xl text-white"></i>
+        <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Fetch-Flix</h1>
       </div>
 
-      <div class="btn-group">
-        <button onclick="fetchInfo()">🎯 Fetch Info</button>
-        <button onclick="directDownload()">⬇ Download Now</button>
+      <!-- Navigation -->
+      <nav class="hidden md:flex gap-8">
+        <a href="#" class="text-white text-sm font-medium hover:text-gray-200 transition">Home</a>
+        <a href="#" id="navFeatures" class="text-white text-sm font-medium hover:text-gray-200 transition">Features</a>
+        <a href="#" id="navHowItWorks" class="text-white text-sm font-medium hover:text-gray-200 transition">How It
+          Works</a>
+      </nav>
+
+      <!-- Optional CTA -->
+      <div class="hidden md:block">
+        <a href="#videoUrl" id="tryNowBtn"
+          class="bg-white text-indigo-700 px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-gray-100 transition">
+          Try Now
+        </a>
       </div>
-
-      <div id="loader" class="loader hidden"></div>
-
-      <div id="videoInfo" class="card hidden" data-aos="fade-up">
-        <img id="thumbnail" src="" alt="Thumbnail">
-        <h2 id="videoTitle"></h2>
-      </div>
-
-      <div id="result" class="result"></div>
     </div>
+  </header>
 
-  </div>
-</section>
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <i class="fas fa-cloud-download-alt text-4xl mb-4"></i>
+      <h2 class="text-4xl font-bold mb-2">Download Videos Instantly from All Major Platforms</h2>
+      <p class="text-lg mb-6">Fetch-Flix makes video downloading simple, private, and blazing fast.</p>
 
-<!-- Footer -->
-<footer id="footer" class="footer-section">
-  <div class="container text-center">
-    <p>© 2025 Arslan's Downloader. All Rights Reserved.</p>
-  </div>
-</footer>
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 max-w-3xl mx-auto border border-white/20">
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1 relative">
+            <input type="text" id="videoUrl" placeholder="Paste video URL here..."
+              class="w-full px-5 py-4 rounded-xl border-2 border-white/30 focus:outline-none focus:ring-2 ring-white text-white bg-white/10 placeholder-white/70">
+            <div class="absolute right-4 top-4 text-white/70">
+              <i class="fas fa-link"></i>
+            </div>
+          </div>
+          <button id="fetchBtn"
+            class="bg-white hover:bg-gray-100 text-indigo-600 px-6 py-4 rounded-xl font-semibold flex items-center justify-center shadow-md">
+            <i class="fas fa-search mr-2"></i> Fetch Media
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- JS -->
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-  AOS.init();
-</script>
+  <!-- Media Info & Download Section -->
+  <section id="videoSection" class="hidden max-w-4xl mx-auto py-12 px-4 w-full">
+    <div class="bg-white rounded-xl shadow-lg mb-8 border border-gray-200 p-6 bg-indigo-50">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Media Preview</h3>
+      <img id="videoThumbnail" src="" alt="Thumbnail" class="rounded-lg mb-4 w-full max-h-96 object-cover" />
+      <h4 id="videoTitle" class="text-lg font-semibold text-gray-800 mb-4"></h4>
 
-<!-- Functions -->
-<script>
-  async function fetchInfo() {
-    const url = document.getElementById("url").value;
-    if (!url) return alert("Please paste a URL!");
+      <div class="flex flex-col md:flex-row gap-4 mb-4">
+        <div class="flex-1">
+          <label class="block text-gray-700 mb-2">Format</label>
+          <select id="formatSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-indigo-500">
+            <option value="mp4">MP4 (Video)</option>
+            <option value="mp3">MP3 (Audio)</option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <label class="block text-gray-700 mb-2">Quality</label>
+          <select id="qualitySelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-indigo-500">
+            <option value="best">Best Available</option>
+            <option value="bestvideo[height<=1080]+bestaudio">1080p</option>
+            <option value="bestvideo[height<=720]+bestaudio">720p</option>
+            <option value="bestvideo[height<=480]+bestaudio">480p</option>
+          </select>
+        </div>
+      </div>
 
-    document.getElementById("loader").classList.remove('hidden');
-    document.getElementById("videoInfo").classList.add('hidden');
+      <button id="downloadBtn"
+        class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center shadow-md">
+        <i class="fas fa-download mr-2"></i> Download Now
+      </button>
+      <div id="resultMsg" class="mt-4 text-center text-sm text-gray-800"></div>
+    </div>
+  </section>
+  <section class="py-16 bg-gradient-to-br from-indigo-50 to-purple-100">
+    <!-- <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100"> -->
+    <div class="mx-auto rounded-xl pl-20 pr-5 pt-5 pb-20 md:pr-20 md:pl-20 md:pt-5 md:pb-5 border">
 
-    const res = await fetch("/fetch_info", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: url })
-    });
+      <!-- How It Works -->
+      <div class="mb-12" id="howitworks">
+        <h2 class="text-3xl font-bold text-center text-indigo-700 mb-8">How It Works</h2>
+        <div class="grid md:grid-cols-3 gap-12 text-center">
+          <div class="bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100">
+            <div
+              class="bg-indigo-100 text-indigo-600 w-12 h-12 flex items-center justify-center rounded-full mx-auto mb-3 text-xl">
+              <i class="fas fa-link"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-1">1. Paste Media URL</h3>
+            <p class="text-sm text-gray-600">Copy and paste a link from any major platform.</p>
+          </div>
+          <div class="bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100">
+            <div
+              class="bg-indigo-100 text-indigo-600 w-12 h-12 flex items-center justify-center rounded-full mx-auto mb-3 text-xl">
+              <i class="fas fa-sliders-h"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-1">2. Choose Format</h3>
+            <p class="text-sm text-gray-600">Select MP4 or MP3 and your preferred quality.</p>
+          </div>
+          <div class="bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100">
+            <div
+              class="bg-indigo-100 text-indigo-600 w-12 h-12 flex items-center justify-center rounded-full mx-auto mb-3 text-xl">
+              <i class="fas fa-download"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-1">3. Download & Enjoy</h3>
+            <p class="text-sm text-gray-600">Save the file to your device — instantly!</p>
+          </div>
+        </div>
+      </div>
 
-    const data = await res.json();
-    document.getElementById("loader").classList.add('hidden');
+      <!-- Key Features -->
+      <div id="features">
+        <h2 class="text-3xl font-bold text-center text-indigo-700 mb-8">Key Features</h2>
+        <div class="grid md:grid-cols-2 gap-12">
+          <div class="flex items-start bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100">
+            <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full mr-4 text-lg">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-md mb-1">Fast & Efficient</h4>
+              <p class="text-sm text-gray-600">Download videos or audio quickly with optimized tools.</p>
+            </div>
+          </div>
+          <div class="flex items-start bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100">
+            <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full mr-4 text-lg">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-md mb-1">Privacy Focused</h4>
+              <p class="text-sm text-gray-600">No data is saved. Everything runs in your browser.</p>
+            </div>
+          </div>
+          <div class="flex items-start bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100">
+            <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full mr-4 text-lg">
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-md mb-1">Mobile Responsive</h4>
+              <p class="text-sm text-gray-600">Use it smoothly on any device: mobile, tab, or desktop.</p>
+            </div>
+          </div>
+          <div class="flex items-start bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100">
+            <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full mr-4 text-lg">
+              <i class="fas fa-infinity"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-md mb-1">Unlimited Downloads</h4>
+              <p class="text-sm text-gray-600">No signup. No restriction. Just download.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    if (data.error) {
-      alert(data.error);
-    } else {
-      document.getElementById("thumbnail").src = data.thumbnail;
-      document.getElementById("videoTitle").innerText = data.title;
-      document.getElementById("videoInfo").classList.remove('hidden');
+    </div>
+  </section>
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-6 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <div class="text-center md:text-left">
+        <p class="text-sm italic text-indigo-400 mb-2">Fetch smarter. Watch anywhere. With Fetch-Flix.</p>
+        <p class="text-sm">&copy; 2025 Fetch-Flix. All rights reserved.</p>
+        <p class="text-xs text-gray-400 mt-1">Designed and developed by <span
+            class="text-indigo-400 font-semibold">Arslan Khan</span></p>
+      </div>
+      <div class="flex space-x-4 mt-4 md:mt-0">
+        <a href="#" class="hover:text-gray-300"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="hover:text-gray-300"><i class="fab fa-github"></i></a>
+        <a href="#" class="hover:text-gray-300"><i class="fas fa-envelope"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Style -->
+  <style>
+    html {
+      scroll-behavior: smooth;
     }
-  }
+  </style>
 
-  async function directDownload() {
-    const url = document.getElementById("url").value;
-    const quality = document.getElementById("quality").value;
-    const format = document.getElementById("format").value;
 
-    if (!url) return alert("Paste URL first!");
+  <!-- Scripts -->
+  <script>
+    const fetchBtn = document.getElementById('fetchBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
 
-    document.getElementById("loader").classList.remove('hidden');
-    document.getElementById("result").innerHTML = '';
+    fetchBtn.addEventListener('click', async () => {
+      const url = document.getElementById('videoUrl').value.trim();
+      if (!url) return alert('Please enter a video URL');
 
-    const res = await fetch("/download", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url: url,
-        quality: quality,
-        download_mp3: format === 'mp3'
-      })
+      fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Fetching...';
+      fetchBtn.disabled = true;
+
+      const res = await fetch('/fetch_info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      fetchBtn.innerHTML = '<i class="fas fa-search mr-2"></i> Fetch Media';
+      fetchBtn.disabled = false;
+
+      const data = await res.json();
+      if (data.error) {
+        return alert('Error: ' + data.error);
+      }
+
+      document.getElementById('videoThumbnail').src = data.thumbnail;
+      document.getElementById('videoTitle').textContent = data.title;
+      document.getElementById('videoSection').classList.remove('hidden');
     });
 
-    const data = await res.json();
-    document.getElementById("loader").classList.add('hidden');
+    downloadBtn.addEventListener('click', async () => {
+      const url = document.getElementById('videoUrl').value.trim();
+      const quality = document.getElementById('qualitySelect').value;
+      const format = document.getElementById('formatSelect').value;
 
-    if (data.filepath) {
-      document.getElementById("result").innerHTML = `
-        ✅ Download ready: <br>
-        <a href="${data.filepath}" download>⬇ Save Now</a>
-      `;
-    } else {
-      document.getElementById("result").innerHTML = `<span style="color:red;">${data.error}</span>`;
+      if (!url) return alert('Missing video URL');
+
+      downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Downloading...';
+      downloadBtn.disabled = true;
+
+      const res = await fetch('/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url,
+          quality,
+          download_mp3: format === 'mp3'
+        })
+      });
+
+      downloadBtn.innerHTML = '<i class="fas fa-download mr-2"></i> Download Now';
+      downloadBtn.disabled = false;
+
+      const data = await res.json();
+      const resultMsg = document.getElementById('resultMsg');
+      if (data.filepath) {
+        resultMsg.innerHTML = `<a class="text-indigo-600 underline" href="${data.filepath}" download>✅ Download Ready – Click here to save</a>`;
+      }
+      else {
+        resultMsg.innerHTML = `<span class="text-red-500">❌ ${data.error}</span>`;
+      }
+    });
+    document.getElementById('navFeatures').addEventListener('click', function (e) {
+      e.preventDefault();
+      scrollToElementById('features', 100); // 100px offset for navbar
+    });
+
+    document.getElementById('navHowItWorks').addEventListener('click', function (e) {
+      e.preventDefault();
+      scrollToElementById('howitworks', 100);
+    });
+
+    document.getElementById('tryNowBtn').addEventListener('click', function (e) {
+      e.preventDefault();
+      scrollToElementById('videoUrl', 100);
+      setTimeout(() => {
+        const input = document.getElementById('videoUrl');
+        if (input) input.focus();
+      }, 500);
+    });
+
+    function scrollToElementById(id, offset = 100) {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      const y = el.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
-  }
-</script>
 
-<!-- Stars Background Script -->
-<script>
-  const canvas = document.getElementById('stars');
-  const ctx = canvas.getContext('2d');
-
-  let width = window.innerWidth;
-  let height = window.innerHeight;
-  canvas.width = width;
-  canvas.height = height;
-
-  const stars = [];
-
-  for (let i = 0; i < 150; i++) {
-    stars.push({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      radius: Math.random() * 1.5,
-      dx: (Math.random() - 0.5) * 0.5,
-      dy: (Math.random() - 0.5) * 0.5
-    });
-  }
-
-  function drawStars() {
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "white";
-    stars.forEach(star => {
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-      ctx.fill();
-    });
-  }
-
-  function updateStars() {
-    stars.forEach(star => {
-      star.x += star.dx;
-      star.y += star.dy;
-      if (star.x < 0 || star.x > width) star.dx = -star.dx;
-      if (star.y < 0 || star.y > height) star.dy = -star.dy;
-    });
-  }
-
-  function animate() {
-    drawStars();
-    updateStars();
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-
-  window.addEventListener('resize', () => {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-  });
-</script>
-
+  </script>
 </body>
+
 </html>
