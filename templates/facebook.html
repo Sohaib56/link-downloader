@@ -5,24 +5,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Fetch-Url | The Smartest Video Downloader</title>
+  <title>Fetch-Url | Facebook Video Downloader</title>
 
 
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-  <meta name="description" content="Download videos from YouTube, Facebook, Instagram in MP4 or MP3 format instantly. Fast, secure, and free.">
-  <meta name="keywords" content="video downloader, MP4 download, MP3 download, YouTube downloader, Fetch-Url">
+  <meta name="description" content="Download videos from Facebook in MP4 or MP3 format instantly. Fast, secure, and free.">
+  <meta name="keywords" content="video downloader, MP4 download, MP3 download, Facebook downloader, Fetch-Url">
   <meta name="author" content="Arslan Khan">
 
-  <meta property="og:title" content="Fetch-Url | The Smartest Video Downloader">
-  <meta property="og:description" content="Download videos instantly from YouTube, Facebook, Instagram in MP4/MP3.">
+  <meta property="og:title" content="Fetch-Url | Facebook Video Downloader">
+  <meta property="og:description" content="Download videos instantly from Facebook in MP4/MP3.">
   <meta property="og:image" content="https://fetch-url.com/assets/preview.jpg">
   <meta property="og:url" content="https://fetch-url.com">
   <meta property="og:type" content="website">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Fetch-Url | Download Videos Instantly">
-  <meta name="twitter:description" content="Fast and private video downloads from YouTube, Facebook, and more.">
+  <meta name="twitter:title" content="Fetch-Url | Download Facebook Videos Instantly">
+  <meta name="twitter:description" content="Fast and private video downloads from Facebook.">
   <meta name="twitter:image" content="https://fetch-url.com/assets/preview.jpg">
 
   <!-- JSON-LD Structured Data -->
@@ -68,7 +68,7 @@
   <section class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16 px-4">
     <div class="max-w-4xl mx-auto text-center">
       <i class="fas fa-cloud-download-alt text-4xl mb-4"></i>
-      <h2 class="text-4xl font-bold mb-2">Download Videos Instantly from All Major Platforms</h2>
+      <h2 class="text-4xl font-bold mb-2">Download Videos Instantly Facebook</h2>
       <p class="text-lg mb-6">Fetch-Url makes video downloading simple, private, and blazing fast.</p>
 
       <div class="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 max-w-3xl mx-auto border border-white/20">
@@ -136,7 +136,7 @@
               <i class="fas fa-link"></i>
             </div>
             <h3 class="text-lg font-semibold mb-1">1. Paste Media URL</h3>
-            <p class="text-sm text-gray-600">Copy and paste a link from any major platform.</p>
+            <p class="text-sm text-gray-600">Copy and paste a link from Facebook.</p>
           </div>
           <div class="bg-white rounded-xl shadow-xl p-8 md:p-10 border border-indigo-100">
             <div
@@ -211,99 +211,3 @@
       scroll-behavior: smooth;
     }
   </style>
-
-
-  <!-- Scripts -->
-  <script>
-    const fetchBtn = document.getElementById('fetchBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-
-    fetchBtn.addEventListener('click', async () => {
-      const url = document.getElementById('videoUrl').value.trim();
-      if (!url) return alert('Please enter a video URL');
-
-      fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Fetching...';
-      fetchBtn.disabled = true;
-
-      const res = await fetch('/fetch_info', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
-
-      fetchBtn.innerHTML = '<i class="fas fa-search mr-2"></i> Fetch Media';
-      fetchBtn.disabled = false;
-
-      const data = await res.json();
-      if (data.error) {
-        return alert('Error: ' + data.error);
-      }
-
-      document.getElementById('videoThumbnail').src = data.thumbnail;
-      document.getElementById('videoTitle').textContent = data.title;
-      document.getElementById('videoSection').classList.remove('hidden');
-    });
-
-    downloadBtn.addEventListener('click', async () => {
-      const url = document.getElementById('videoUrl').value.trim();
-      const quality = document.getElementById('qualitySelect').value;
-      const format = document.getElementById('formatSelect').value;
-
-      if (!url) return alert('Missing video URL');
-
-      downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Downloading...';
-      downloadBtn.disabled = true;
-
-      const res = await fetch('/download', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url,
-          quality,
-          download_mp3: format === 'mp3'
-        })
-      });
-
-      downloadBtn.innerHTML = '<i class="fas fa-download mr-2"></i> Download Now';
-      downloadBtn.disabled = false;
-
-      const data = await res.json();
-      const resultMsg = document.getElementById('resultMsg');
-      if (data.filepath) {
-        resultMsg.innerHTML = `<a class="text-indigo-600 underline" href="${data.filepath}" download>✅ Download Ready – Click here to save</a>`;
-      }
-      else {
-        resultMsg.innerHTML = `<span class="text-red-500">❌ ${data.error}</span>`;
-      }
-    });
-    document.getElementById('navFeatures').addEventListener('click', function (e) {
-      e.preventDefault();
-      scrollToElementById('features', 100); // 100px offset for navbar
-    });
-
-    document.getElementById('navHowItWorks').addEventListener('click', function (e) {
-      e.preventDefault();
-      scrollToElementById('howitworks', 100);
-    });
-
-    document.getElementById('tryNowBtn').addEventListener('click', function (e) {
-      e.preventDefault();
-      scrollToElementById('videoUrl', 100);
-      setTimeout(() => {
-        const input = document.getElementById('videoUrl');
-        if (input) input.focus();
-      }, 500);
-    });
-
-    function scrollToElementById(id, offset = 100) {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      const y = el.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-
-  </script>
-</body>
-
-</html>
